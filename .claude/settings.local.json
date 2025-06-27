@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(npm install)",
+      "Bash(sudo chown:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(npm install:*)",
+      "Bash(python3:*)",
+      "Bash(npm start)",
+      "WebFetch(domain:alvaroyelena.es)",
+      "Bash(npm run dev:*)",
+      "Bash(git init:*)",
+      "Bash(gh auth:*)",
+      "Bash(brew install:*)"
+    ],
+    "deny": []
+  }
+}
