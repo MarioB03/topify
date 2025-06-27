@@ -94,6 +94,12 @@
             color: white;
         }
         
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            color: white;
+        }
+        
         @keyframes bounce {
             0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
             40%, 43% { transform: translateY(-10px); }
@@ -227,30 +233,8 @@
 
     <div class="max-w-7xl mx-auto px-4 py-6">
 
-        <!-- Estadísticas -->
-        <section class="glass-card rounded-3xl p-6 mb-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #8b5cf6; --to-color: #7c3aed;">
-                    <div class="text-4xl font-bold mb-2" id="totalSongs">0</div>
-                    <div class="text-sm font-medium text-purple-200">Canciones</div>
-                </div>
-                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #06b6d4; --to-color: #0891b2;">
-                    <div class="text-4xl font-bold mb-2" id="totalDuration">0:00</div>
-                    <div class="text-sm font-medium text-cyan-200">Duración total</div>
-                </div>
-                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #10b981; --to-color: #059669;">
-                    <div class="text-4xl font-bold mb-2" id="totalVotes">0</div>
-                    <div class="text-sm font-medium text-emerald-200">Votos totales</div>
-                </div>
-                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #f59e0b; --to-color: #d97706;">
-                    <div class="text-4xl font-bold mb-2" id="avgVotes">0</div>
-                    <div class="text-sm font-medium text-amber-200">Promedio votos</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Layout en dos columnas -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Layout en dos columnas independientes -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             <!-- Columna izquierda: Búsqueda -->
             <section class="glass-card rounded-3xl p-6">
                 <h2 class="section-title text-2xl font-bold mb-6 text-white">
@@ -276,6 +260,28 @@
                 <div id="playlist" class="space-y-2"></div>
             </section>
         </div>
+
+        <!-- Estadísticas al final -->
+        <section class="glass-card rounded-3xl p-6 mt-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #8b5cf6; --to-color: #7c3aed;">
+                    <div class="text-4xl font-bold mb-2" id="totalSongs">0</div>
+                    <div class="text-sm font-medium text-purple-200">Canciones</div>
+                </div>
+                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #06b6d4; --to-color: #0891b2;">
+                    <div class="text-4xl font-bold mb-2" id="totalDuration">0:00</div>
+                    <div class="text-sm font-medium text-cyan-200">Duración total</div>
+                </div>
+                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #10b981; --to-color: #059669;">
+                    <div class="text-4xl font-bold mb-2" id="totalVotes">0</div>
+                    <div class="text-sm font-medium text-emerald-200">Votos totales</div>
+                </div>
+                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #f59e0b; --to-color: #d97706;">
+                    <div class="text-4xl font-bold mb-2" id="avgVotes">0</div>
+                    <div class="text-sm font-medium text-amber-200">Promedio votos</div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script src="script.js"></script>
