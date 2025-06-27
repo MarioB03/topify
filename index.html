@@ -25,15 +25,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
         
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
         
         .neon-glow {
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
@@ -53,21 +44,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .stat-card:hover::before {
-            opacity: 1;
-        }
         
         .search-input {
             background: rgba(255, 255, 255, 0.08);
@@ -91,14 +67,6 @@
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .song-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border-color: rgba(139, 92, 246, 0.5);
         }
         
         .playlist-item {
@@ -106,49 +74,24 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-left: 3px solid #8b5cf6;
-            transition: all 0.3s ease;
-        }
-        
-        .playlist-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(4px);
-            border-left-color: #06b6d4;
         }
         
         .btn-primary {
             background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             border: none;
-            transition: all 0.3s ease;
             color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
         }
         
         .btn-secondary {
             background: linear-gradient(135deg, #06b6d4, #0891b2);
             border: none;
-            transition: all 0.3s ease;
             color: white;
-        }
-        
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(6, 182, 212, 0.4);
         }
         
         .btn-audio {
             background: linear-gradient(135deg, #8b5cf6, #06b6d4);
             border: none;
-            transition: all 0.3s ease;
             color: white;
-        }
-        
-        .btn-audio:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
         }
         
         @keyframes bounce {
@@ -285,7 +228,7 @@
     <div class="max-w-7xl mx-auto px-4 py-6">
 
         <!-- Estadísticas -->
-        <section class="glass-card rounded-3xl p-6 mb-8 card-hover">
+        <section class="glass-card rounded-3xl p-6 mb-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: #8b5cf6; --to-color: #7c3aed;">
                     <div class="text-4xl font-bold mb-2" id="totalSongs">0</div>
@@ -309,7 +252,7 @@
         <!-- Layout en dos columnas -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Columna izquierda: Búsqueda -->
-            <section class="glass-card rounded-3xl p-6 card-hover">
+            <section class="glass-card rounded-3xl p-6">
                 <h2 class="section-title text-2xl font-bold mb-6 text-white">
                     🔍 Descubre música
                 </h2>
@@ -326,7 +269,7 @@
             </section>
 
             <!-- Columna derecha: Playlist -->
-            <section class="glass-card rounded-3xl p-6 card-hover">
+            <section class="glass-card rounded-3xl p-6">
                 <h2 class="section-title text-2xl font-bold mb-6 text-white">
                     🎵 Tu playlist
                 </h2>
