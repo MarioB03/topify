@@ -6,6 +6,8 @@ class Topify {
         this.isSearching = false;
         this.currentAudio = null;
         this.currentPlayingId = null;
+        this.currentPage = 0;
+        this.songsPerPage = 5;
         
         this.initializeEventListeners();
         this.renderPlaylist();
@@ -49,7 +51,7 @@ class Topify {
 
         try {
             this.isSearching = true;
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=6`);
             
             if (!response.ok) {
                 throw new Error('Error en la búsqueda');
@@ -87,20 +89,19 @@ class Topify {
         }
 
         resultsContainer.innerHTML = this.searchResults.map(song => `
-            <div class="song-card rounded-2xl p-5 flex items-center gap-4">
-                <img src="${song.album.cover_medium}" alt="${song.title}" class="w-16 h-16 rounded-xl object-cover shadow-2xl">
+            <div class="song-card rounded-lg p-2 flex items-center gap-2">
+                <img src="${song.album.cover_medium}" alt="${song.title}" class="w-10 h-10 rounded-md object-cover shadow-lg">
                 <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-lg truncate text-gray-100">${song.title}</div>
-                    <div class="truncate font-medium text-gray-200">${song.artist.name}</div>
-                    <div class="text-sm mt-1 text-gray-300">${this.formatDuration(song.duration)}</div>
+                    <div class="font-semibold text-sm truncate text-gray-100">${song.title}</div>
+                    <div class="truncate font-medium text-xs text-gray-200">${song.artist.name}</div>
                 </div>
                 <div class="flex gap-3 flex-shrink-0">
                     ${song.preview ? `
-                        <button class="btn-audio text-white p-3 rounded-full shadow-lg" onclick="topify.togglePreview(${song.id}, '${song.preview}')" title="Escuchar preview">
-                            <span id="play-icon-${song.id}" class="text-lg">▶️</span>
+                        <button class="btn-audio text-white p-2 rounded-full shadow-lg" onclick="topify.togglePreview(${song.id}, '${song.preview}')" title="Escuchar preview">
+                            <span id="play-icon-${song.id}" class="text-sm">▶️</span>
                         </button>
                     ` : ''}
-                    <button class="btn-secondary text-white px-6 py-3 rounded-xl font-semibold shadow-lg" onclick="topify.voteSong(${song.id})">
+                    <button class="btn-secondary text-white px-4 py-2 rounded-lg font-medium shadow-lg" onclick="topify.voteSong(${song.id})">
                         Votar
                     </button>
                 </div>
@@ -130,6 +131,10 @@ class Topify {
         }
 
         this.savePlaylist();
+        // Si es una nueva canción, ir a la primera página para verla
+        if (isNewSong) {
+            this.currentPage = 0;
+        }
         this.renderPlaylist();
         this.updateStats();
         
@@ -316,23 +321,51 @@ class Topify {
         }
 
         const sortedPlaylist = [...this.playlist].sort((a, b) => b.votes - a.votes);
+        const startIndex = this.currentPage * this.songsPerPage;
+        const endIndex = startIndex + this.songsPerPage;
+        const currentPageSongs = sortedPlaylist.slice(startIndex, endIndex);
+        const totalPages = Math.ceil(sortedPlaylist.length / this.songsPerPage);
         
-        playlistContainer.innerHTML = sortedPlaylist.map((song, index) => `
-            <div class="playlist-item rounded-2xl p-4 flex items-center gap-4 ${song.isNew ? 'new-song' : ''}" data-song-id="${song.id}">
-                <div class="text-2xl font-bold min-w-12 text-center text-gradient">
-                    #${index + 1}
+        playlistContainer.innerHTML = currentPageSongs.map((song, index) => `
+            <div class="playlist-item rounded-lg p-2 flex items-center gap-2 ${song.isNew ? 'new-song' : ''}" data-song-id="${song.id}">
+                <div class="text-lg font-bold min-w-8 text-center text-gradient">
+                    #${startIndex + index + 1}
                 </div>
-                <img src="${song.cover}" alt="${song.title}" class="w-14 h-14 rounded-xl object-cover shadow-2xl">
+                <img src="${song.cover}" alt="${song.title}" class="w-10 h-10 rounded-md object-cover shadow-lg">
                 <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-lg truncate text-gray-100">${song.title}</div>
-                    <div class="truncate font-medium text-gray-200">${song.artist}</div>
-                    <div class="text-sm mt-1 text-gray-300">${this.formatDuration(song.duration)}</div>
+                    <div class="font-semibold text-sm truncate text-gray-100">${song.title}</div>
+                    <div class="truncate font-medium text-xs text-gray-200">${song.artist}</div>
                 </div>
-                <div class="btn-primary text-white px-4 py-2 rounded-xl font-bold shadow-lg">
+                <div class="btn-primary text-white px-3 py-1 rounded-lg font-bold shadow-lg">
                     ${song.votes}
                 </div>
             </div>
         `).join('');
+        
+        // Agregar controles de paginación
+        if (totalPages > 1) {
+            playlistContainer.innerHTML += `
+                <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-600">
+                    <button 
+                        onclick="topify.previousPage()" 
+                        class="btn-secondary px-3 py-1 rounded-md text-white text-sm font-medium ${this.currentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${this.currentPage === 0 ? 'disabled' : ''}
+                    >
+                        ← Anterior
+                    </button>
+                    <div class="text-xs text-gray-300">
+                        Página ${this.currentPage + 1} de ${totalPages}
+                    </div>
+                    <button 
+                        onclick="topify.nextPage()" 
+                        class="btn-secondary px-3 py-1 rounded-md text-white text-sm font-medium ${this.currentPage === totalPages - 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${this.currentPage === totalPages - 1 ? 'disabled' : ''}
+                    >
+                        Siguiente →
+                    </button>
+                </div>
+            `;
+        }
         
         // Limpiar flag de nueva canción
         this.playlist.forEach(song => {
@@ -372,6 +405,21 @@ class Topify {
         this.playlist = [];
         this.savePlaylist();
         this.renderPlaylist();
+    }
+
+    nextPage() {
+        const totalPages = Math.ceil(this.playlist.length / this.songsPerPage);
+        if (this.currentPage < totalPages - 1) {
+            this.currentPage++;
+            this.renderPlaylist();
+        }
+    }
+
+    previousPage() {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.renderPlaylist();
+        }
     }
 }
 
