@@ -180,10 +180,12 @@ class Topify {
         
         // Mostrar toast
         toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
         
         // Ocultar toast después de 3 segundos
         setTimeout(() => {
             toast.style.transform = 'translateX(100%)';
+            toast.style.opacity = '0';
         }, 3000);
         
         // Restaurar botón

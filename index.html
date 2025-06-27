@@ -275,7 +275,7 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-primary to-secondary">
     <!-- Notification Toast -->
-    <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+    <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full opacity-0 transition-all duration-300 z-50">
         <div class="flex items-center gap-2">
             <span class="text-xl">🎉</span>
             <span id="toast-message">¡Canción añadida a la playlist!</span>
@@ -283,19 +283,6 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-12">
-        <header class="text-center mb-20">
-            <div class="floating mb-8">
-                <h1 class="text-6xl md:text-8xl font-black mb-6 text-gradient">
-                    🎵 Topify
-                </h1>
-            </div>
-            <p class="text-xl md:text-2xl font-medium text-gray-200 max-w-3xl mx-auto leading-relaxed">
-                La forma más cool de crear tu playlist colaborativa
-            </p>
-            <div class="mt-8 flex justify-center">
-                <div class="w-32 h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 rounded-full"></div>
-            </div>
-        </header>
 
         <!-- Estadísticas -->
         <section class="glass-card rounded-3xl p-8 mb-12 card-hover">
