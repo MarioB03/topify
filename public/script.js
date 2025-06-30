@@ -9,9 +9,10 @@ class Topify {
         this.currentAudio = null;
         this.currentPlayingId = null;
         this.currentPage = 0;
-        this.songsPerPage = 12;
+        // Responsive songs per page
+        this.songsPerPage = window.innerWidth < 1024 ? 8 : 12;
         this.myVotesPage = 0;
-        this.myVotesPerPage = 12;
+        this.myVotesPerPage = window.innerWidth < 1024 ? 8 : 12;
         this.firebaseReady = false;
         this.userFingerprint = this.generateUserFingerprint();
         
@@ -20,6 +21,19 @@ class Topify {
             this.initializeEventListeners();
             await this.initializeData();
             this.startCountdown();
+        });
+        
+        // Handle window resize for responsive songs per page
+        window.addEventListener('resize', () => {
+            const newSongsPerPage = window.innerWidth < 1024 ? 8 : 12;
+            if (newSongsPerPage !== this.songsPerPage) {
+                this.songsPerPage = newSongsPerPage;
+                this.myVotesPerPage = newSongsPerPage;
+                this.currentPage = 0;
+                this.myVotesPage = 0;
+                this.renderPlaylist();
+                this.renderMyVotes();
+            }
         });
     }
 
@@ -949,20 +963,20 @@ class Topify {
             
             return `
             <div class="playlist-item rounded-lg p-2 flex items-center gap-2" data-song-id="${song.id}">
-                <div class="text-sm font-bold min-w-8 text-center text-gradient flex items-center justify-center">
-                    ${medal ? `<span class="text-lg">${medal}</span>` : `#${globalPosition}`}
+                <div class="text-lg font-bold min-w-8 text-center text-gradient flex items-center justify-center">
+                    ${medal ? `<span class="text-xl mr-1">${medal}</span>` : `#${globalPosition}`}
                 </div>
-                <img src="${song.cover}" alt="${song.title}" class="w-8 h-8 rounded-md object-cover shadow-lg">
+                <img src="${song.cover}" alt="${song.title}" class="w-10 h-10 rounded-md object-cover shadow-lg">
                 <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-xs truncate text-gray-800">${song.title}</div>
+                    <div class="font-semibold text-sm truncate text-gray-800">${song.title}</div>
                     <div class="truncate font-medium text-xs text-gray-600">${song.artist}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="btn-secondary text-white px-2 py-1 rounded-lg font-bold shadow-lg text-xs">
+                    <div class="btn-secondary text-white px-3 py-1 rounded-lg font-bold shadow-lg">
                         ${song.votes}
                     </div>
-                    <button class="btn-danger text-white px-2 py-1 rounded-lg shadow-lg font-medium text-xs" onclick="topify.removeVote('${song.id}')" title="Quitar mi voto">
-                        -1
+                    <button class="btn-danger text-white px-3 py-1 rounded-lg shadow-lg font-medium w-12" onclick="topify.removeVote('${song.id}')" title="Quitar mi voto">
+                        <span class="text-sm">-1</span>
                     </button>
                 </div>
             </div>
