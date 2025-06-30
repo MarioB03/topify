@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topify - Vota tu música</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            /* Colores elegantes inspirados en bodas */
+            --color-cream-light: #faf7f2;
+            --color-cream-medium: #f4ede4;
+            --color-cream-dark: #e8dcc6;
+            
+            --color-rose-light: #f8e8e8;
+            --color-rose-medium: #e6b3b3;
+            --color-rose-dark: #d4a4a4;
+            
+            --color-sage-light: #e8f0e8;
+            --color-sage-medium: #a7b69b;
+            --color-sage-dark: #8fa183;
+            
+            --color-gold-light: #fcf3d0;
+            --color-gold-medium: #f5d66c;
+            --color-gold-dark: #d39921;
+            
+            --color-pearl-light: #faf5ec;
+            --color-pearl-medium: #f0e2c9;
+            --color-pearl-dark: #c7ad7c;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(247, 244, 238, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(240, 226, 201, 0.6) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(167, 182, 155, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, var(--color-cream-light) 0%, var(--color-pearl-light) 30%, var(--color-cream-medium) 70%, var(--color-pearl-medium) 100%);
+            background-attachment: fixed;
+            background-size: 100% 100%, 80% 80%, 60% 60%, 100% 100%;
+            color: #4a5568;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23a7b69b' fill-opacity='0.03'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3Ccircle cx='13' cy='13' r='1'/%3E%3C/g%3E%3C/svg%3E");
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(167, 182, 155, 0.2);
+            box-shadow: 0 20px 40px rgba(167, 182, 155, 0.15);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--color-sage-dark), var(--color-gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--from-color), var(--to-color));
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(167, 182, 155, 0.2);
+            box-shadow: 0 8px 32px rgba(167, 182, 155, 0.2);
+        }
+        
+        .search-input {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--color-sage-light);
+            transition: all 0.3s ease;
+            color: #4a5568;
+        }
+        
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: var(--color-sage-medium);
+            box-shadow: 0 0 0 3px rgba(167, 182, 155, 0.2);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(74, 85, 104, 0.6);
+        }
+        
+        .song-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--color-sage-light);
+            transition: all 0.3s ease;
+        }
+        
+        .song-card:hover {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 25px rgba(167, 182, 155, 0.2);
+        }
+        
+        .playlist-item {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--color-sage-light);
+            border-left: 4px solid var(--color-sage-medium);
+            transition: all 0.3s ease;
+        }
+        
+        .playlist-item:hover {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 25px rgba(167, 182, 155, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-sage-medium), var(--color-sage-dark));
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(167, 182, 155, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--color-rose-medium), var(--color-rose-dark));
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(230, 179, 179, 0.3);
+        }
+        
+        .btn-audio {
+            background: linear-gradient(135deg, var(--color-gold-medium), var(--color-gold-dark));
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-audio:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 214, 108, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-10px); }
+            70% { transform: translateY(-5px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .vote-success {
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        .new-song {
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        .pulse-effect {
+            animation: pulse 0.3s ease-in-out;
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .flying-song {
+            position: fixed;
+            z-index: 1000;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 0.75rem;
+            box-shadow: 0 25px 50px rgba(167, 182, 155, 0.3);
+            transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .flying-song.animate {
+            transform: scale(0.3);
+            opacity: 0;
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            color: var(--color-sage-dark);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-sage-medium), var(--color-gold-medium));
+            border-radius: 2px;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Texto mejorado */
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--color-sage-dark);
+        }
+        
+        .text-muted {
+            color: #718096;
+        }
+        
+        .text-accent {
+            color: var(--color-sage-dark);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen">
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full opacity-0 transition-all duration-300 z-50" style="background: linear-gradient(135deg, var(--color-sage-medium), var(--color-sage-dark)); border: 1px solid rgba(167, 182, 155, 0.3);">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">🎉</span>
+            <span id="toast-message">¡Canción añadida a la playlist!</span>
+        </div>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-7xl w-full">
+
+        <!-- Layout en dos columnas con misma altura -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Columna izquierda: Búsqueda -->
+            <section class="glass-card rounded-3xl p-6 flex flex-col">
+                <h2 class="section-title text-2xl font-bold mb-6">
+                    🔍 Descubre música
+                </h2>
+                <div class="mb-6">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Busca canciones por título o artista..."
+                        class="search-input w-full px-6 py-4 rounded-2xl text-lg font-medium focus:outline-none"
+                        autocomplete="off"
+                    >
+                </div>
+                <div id="searchResults" class="space-y-2" style="height: 320px;"></div>
+            </section>
+
+            <!-- Columna derecha: Playlist -->
+            <section class="glass-card rounded-3xl p-6 flex flex-col">
+                <h2 class="section-title text-2xl font-bold mb-6">
+                    🎵 Tu playlist
+                </h2>
+                <div class="flex-1 flex flex-col">
+                    <div id="playlist" class="space-y-2 flex-1" style="height: 260px; overflow-y: auto;"></div>
+                    <div id="pagination-controls" class="mt-4 pt-3 border-t border-gray-600"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Estadísticas al final -->
+        <section class="glass-card rounded-3xl p-6 mt-8">
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-sage-medium); --to-color: var(--color-sage-dark);">
+                    <div class="text-4xl font-bold mb-2" id="totalSongs">0</div>
+                    <div class="text-sm font-medium opacity-90">Canciones</div>
+                </div>
+                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-gold-medium); --to-color: var(--color-gold-dark);">
+                    <div class="text-4xl font-bold mb-2" id="totalVotes">0</div>
+                    <div class="text-sm font-medium opacity-90">Votos totales</div>
+                </div>
+            </div>
+            
+            <!-- Cuenta atrás -->
+            <div class="stat-card text-white p-4 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-rose-medium); --to-color: var(--color-rose-dark);">
+                <div class="text-sm font-medium opacity-90 mb-2">⏰ Votaciones cierran en:</div>
+                <div id="countdown" class="text-2xl font-bold">Calculando...</div>
+                <div class="text-xs opacity-75 mt-1">23 de Agosto, 2025</div>
+            </div>
+        </section>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, query, orderBy, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxLWGvYbH-8PpL3F9bOkqZHJDt_8YcNx0",
+            authDomain: "topify-5e609.firebaseapp.com",
+            projectId: "topify-5e609",
+            storageBucket: "topify-5e609.firebasestorage.app",
+            messagingSenderId: "1025756851346",
+            appId: "1:1025756851346:web:f4c5e0a7c4e8c9b2a5d6f7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase available globally
+        window.firebaseApp = app;
+        window.firestore = db;
+        window.firestoreUtils = {
+            collection,
+            addDoc,
+            getDocs,
+            updateDoc,
+            doc,
+            deleteDoc,
+            query,
+            orderBy,
+            where
+        };
+    </script>
+    <script src="script.js?v=15"></script>
+</body>
+</html>
