@@ -175,6 +175,18 @@
             box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
         }
         
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
         @keyframes bounce {
             0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
             40%, 43% { transform: translateY(-10px); }
@@ -301,57 +313,73 @@
     <div class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-7xl w-full">
 
-        <!-- Layout en dos columnas con misma altura -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Columna izquierda: Búsqueda -->
-            <section class="glass-card rounded-3xl p-6 flex flex-col">
-                <h2 class="section-title text-2xl font-bold mb-6">
-                    🔍 Descubre música
-                </h2>
-                <div class="mb-6">
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        placeholder="Busca canciones por título o artista..."
-                        class="search-input w-full px-6 py-4 rounded-2xl text-lg font-medium focus:outline-none"
-                        autocomplete="off"
-                    >
-                </div>
-                <div id="searchResults" class="space-y-2" style="height: 320px;"></div>
-            </section>
+        <!-- Layout en tres columnas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="height: calc(100vh - 2rem);">
+            <!-- Columna izquierda: Búsqueda y Estadísticas -->
+            <div class="flex flex-col gap-8">
+                <!-- Búsqueda -->
+                <section class="glass-card rounded-3xl p-6 flex flex-col flex-1">
+                    <h2 class="section-title text-2xl font-bold mb-6">
+                        🔍 Buscar música
+                    </h2>
+                    <div class="mb-6">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Busca canciones por título o artista..."
+                            class="search-input w-full px-6 py-4 rounded-2xl text-lg font-medium focus:outline-none"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div id="searchResults" class="space-y-2 overflow-y-auto flex-1"></div>
+                </section>
 
-            <!-- Columna derecha: Playlist -->
-            <section class="glass-card rounded-3xl p-6 flex flex-col">
+                <!-- Estadísticas -->
+                <section class="glass-card rounded-3xl p-6 flex-shrink-0">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="stat-card text-white p-4 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-sage-medium); --to-color: var(--color-sage-dark);">
+                            <div class="text-3xl font-bold mb-1" id="totalSongs">0</div>
+                            <div class="text-xs font-medium opacity-90">Canciones</div>
+                        </div>
+                        <div class="stat-card text-white p-4 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-gold-medium); --to-color: var(--color-gold-dark);">
+                            <div class="text-3xl font-bold mb-1" id="totalVotes">0</div>
+                            <div class="text-xs font-medium opacity-90">Votos totales</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cuenta atrás -->
+                    <div class="stat-card text-white p-4 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-rose-medium); --to-color: var(--color-rose-dark);">
+                        <div class="text-sm font-medium opacity-90 mb-2">⏰ Votaciones cierran en:</div>
+                        <div id="countdown" class="text-xl font-bold">Calculando...</div>
+                        <div class="text-xs opacity-75 mt-1">23 de Agosto, 2025</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Columna central: Lista de votaciones -->
+            <section class="glass-card rounded-3xl p-6 flex flex-col" style="height: calc(100vh - 2rem);">
                 <h2 class="section-title text-2xl font-bold mb-6">
-                    🎵 Tu playlist
+                    🗳️ Lista de votaciones
                 </h2>
                 <div class="flex-1 flex flex-col">
-                    <div id="playlist" class="space-y-2 flex-1" style="height: 260px; overflow-y: auto;"></div>
-                    <div id="pagination-controls" class="mt-4 pt-3 border-t border-gray-600"></div>
+                    <div id="playlist" class="space-y-2 flex-1 overflow-y-auto"></div>
+                    <div id="pagination-controls" class="mt-4 pt-3 border-t border-gray-600 flex-shrink-0"></div>
+                </div>
+            </section>
+
+            <!-- Columna derecha: Mis votos -->
+            <section class="glass-card rounded-3xl p-6 flex flex-col" style="height: calc(100vh - 2rem);">
+                <h2 class="section-title text-2xl font-bold mb-6">
+                    ❤️ Mis votos
+                </h2>
+                <div class="flex-1 flex flex-col">
+                    <div id="myVotes" class="space-y-2 flex-1 overflow-y-auto"></div>
+                    <div class="mt-4 pt-3 border-t border-gray-600 flex-shrink-0 text-center">
+                        <span id="myVotesCount" class="text-sm text-gray-600">0 votos</span>
+                    </div>
                 </div>
             </section>
         </div>
-
-        <!-- Estadísticas al final -->
-        <section class="glass-card rounded-3xl p-6 mt-8">
-            <div class="grid grid-cols-2 gap-6 mb-6">
-                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-sage-medium); --to-color: var(--color-sage-dark);">
-                    <div class="text-4xl font-bold mb-2" id="totalSongs">0</div>
-                    <div class="text-sm font-medium opacity-90">Canciones</div>
-                </div>
-                <div class="stat-card text-white p-6 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-gold-medium); --to-color: var(--color-gold-dark);">
-                    <div class="text-4xl font-bold mb-2" id="totalVotes">0</div>
-                    <div class="text-sm font-medium opacity-90">Votos totales</div>
-                </div>
-            </div>
-            
-            <!-- Cuenta atrás -->
-            <div class="stat-card text-white p-4 rounded-2xl text-center relative overflow-hidden" style="--from-color: var(--color-rose-medium); --to-color: var(--color-rose-dark);">
-                <div class="text-sm font-medium opacity-90 mb-2">⏰ Votaciones cierran en:</div>
-                <div id="countdown" class="text-2xl font-bold">Calculando...</div>
-                <div class="text-xs opacity-75 mt-1">23 de Agosto, 2025</div>
-            </div>
-        </section>
         </div>
     </div>
 
@@ -390,6 +418,6 @@
             where
         };
     </script>
-    <script src="script.js?v=15"></script>
+    <script src="script.js?v=23"></script>
 </body>
 </html>

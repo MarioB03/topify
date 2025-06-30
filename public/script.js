@@ -9,7 +9,7 @@ class Topify {
         this.currentAudio = null;
         this.currentPlayingId = null;
         this.currentPage = 0;
-        this.songsPerPage = 5;
+        this.songsPerPage = 12;
         this.firebaseReady = false;
         this.userFingerprint = this.generateUserFingerprint();
         
@@ -113,12 +113,14 @@ class Topify {
             
             this.renderPlaylist();
             this.updateStats();
+            this.renderMyVotes();
         } catch (error) {
             console.error('Error loading playlist from Firebase:', error);
             // Fallback to localStorage
             this.playlist = JSON.parse(localStorage.getItem('topify-playlist')) || [];
             this.renderPlaylist();
             this.updateStats();
+            this.renderMyVotes();
         }
     }
 
@@ -293,7 +295,7 @@ class Topify {
             this.isSearching = true;
             
             // Use Last.fm API (free, no auth required)
-            const lastfmResponse = await fetch(`https://ws.audioscrobbler.com/2.0/?method=track.search&track=${encodeURIComponent(query)}&api_key=b25b959554ed76058ac220b7b2e0a026&format=json&limit=3`);
+            const lastfmResponse = await fetch(`https://ws.audioscrobbler.com/2.0/?method=track.search&track=${encodeURIComponent(query)}&api_key=b25b959554ed76058ac220b7b2e0a026&format=json&limit=5`);
             
             if (lastfmResponse.ok) {
                 const lastfmData = await lastfmResponse.json();
@@ -348,7 +350,7 @@ class Topify {
                 }
             } else {
                 // Fallback to Jamendo API
-                const response = await fetch(`https://api.jamendo.com/v3.0/tracks/?client_id=56d30c95&format=jsonpretty&limit=3&search=${encodeURIComponent(query)}&include=musicinfo`);
+                const response = await fetch(`https://api.jamendo.com/v3.0/tracks/?client_id=56d30c95&format=jsonpretty&limit=5&search=${encodeURIComponent(query)}&include=musicinfo`);
                 
                 if (!response.ok) {
                     throw new Error('Error en la búsqueda');
@@ -498,6 +500,7 @@ class Topify {
         }
         this.renderPlaylist();
         this.updateStats();
+        this.renderMyVotes();
         
         // Pausar audio si está reproduciéndose
         if (this.currentAudio && !this.currentAudio.paused) {
@@ -675,10 +678,19 @@ class Topify {
         
         playlistContainer.innerHTML = currentPageSongs.map((song, index) => {
             const canDelete = this.votedSongs.includes(song.id);
+            const canVote = !this.votedSongs.includes(song.id);
+            const globalPosition = startIndex + index + 1;
+            
+            // Obtener medalla para las 3 primeras posiciones
+            let medal = '';
+            if (globalPosition === 1) medal = '🥇';
+            else if (globalPosition === 2) medal = '🥈';
+            else if (globalPosition === 3) medal = '🥉';
+            
             return `
             <div class="playlist-item rounded-lg p-2 flex items-center gap-2 ${song.isNew ? 'new-song' : ''}" data-song-id="${song.id}">
-                <div class="text-lg font-bold min-w-8 text-center text-gradient">
-                    #${startIndex + index + 1}
+                <div class="text-lg font-bold min-w-8 text-center text-gradient flex items-center justify-center">
+                    ${medal ? `<span class="text-xl mr-1">${medal}</span>` : `#${globalPosition}`}
                 </div>
                 <img src="${song.cover}" alt="${song.title}" class="w-10 h-10 rounded-md object-cover shadow-lg">
                 <div class="flex-1 min-w-0">
@@ -686,12 +698,17 @@ class Topify {
                     <div class="truncate font-medium text-xs text-gray-600">${song.artist}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="btn-primary text-white px-3 py-1 rounded-lg font-bold shadow-lg">
+                    <div class="btn-secondary text-white px-3 py-1 rounded-lg font-bold shadow-lg">
                         ${song.votes}
                     </div>
+                    ${canVote ? `
+                        <button class="btn-success text-white px-3 py-1 rounded-lg shadow-lg font-bold w-12" onclick="topify.addVoteToSong('${song.id}')" title="Votar por esta canción">
+                            <span class="text-sm">+1</span>
+                        </button>
+                    ` : ''}
                     ${canDelete ? `
-                        <button class="btn-danger text-white p-1 rounded-md shadow-lg" onclick="topify.removeVote('${song.id}')" title="Quitar mi voto">
-                            <span class="text-xs">↩️</span>
+                        <button class="btn-danger text-white px-3 py-1 rounded-lg shadow-lg font-medium w-12" onclick="topify.removeVote('${song.id}')" title="Quitar mi voto">
+                            <span class="text-sm">-1</span>
                         </button>
                     ` : ''}
                 </div>
@@ -816,7 +833,40 @@ class Topify {
         this.savePlaylist();
         this.renderPlaylist();
         this.updateStats();
+        this.renderMyVotes();
         this.showToast(`↩️ Voto retirado de ${song.title}`, 'blue');
+    }
+
+    async addVoteToSong(songId) {
+        // Verificar si ya se votó por esta canción en esta sesión
+        if (this.votedSongs.includes(songId)) {
+            this.showToast('⚠️ Ya votaste por esta canción en esta sesión', 'orange');
+            return;
+        }
+
+        const song = this.playlist.find(s => s.id === songId);
+        if (!song) return;
+
+        // Incrementar votos
+        song.votes++;
+
+        // Registrar el voto en Firebase y localStorage
+        this.votedSongs.push(songId);
+        this.saveVotedSongToFirebase(songId);
+
+        // Actualizar en Firebase
+        await this.updateSongInFirebase(song);
+
+        this.savePlaylistToFirebase();
+        this.renderPlaylist();
+        this.updateStats();
+        this.renderMyVotes();
+        
+        // Toast notification
+        this.showToast(`👍 +1 voto para ${song.title}!`, 'green');
+        
+        // Animar estadísticas
+        this.animateStats();
     }
 
     startCountdown() {
@@ -846,6 +896,65 @@ class Topify {
         updateCountdown();
         setInterval(updateCountdown, 1000);
     }
+
+    renderMyVotes() {
+        const myVotesContainer = document.getElementById('myVotes');
+        const myVotesCount = document.getElementById('myVotesCount');
+        
+        if (this.votedSongs.length === 0) {
+            myVotesContainer.innerHTML = `
+                <div class="text-center py-16">
+                    <div class="text-6xl mb-6 floating">💭</div>
+                    <p class="text-xl font-semibold mb-2 text-gradient">No has votado aún</p>
+                    <p class="text-lg text-gray-600">Busca y vota por tus canciones favoritas</p>
+                </div>
+            `;
+            myVotesCount.textContent = '0 votos';
+            return;
+        }
+
+        // Filtrar las canciones que están en la playlist y que he votado
+        const myVotedSongs = this.playlist.filter(song => 
+            this.votedSongs.includes(song.id)
+        ).sort((a, b) => b.votes - a.votes);
+
+        myVotesContainer.innerHTML = myVotedSongs.map((song, index) => {
+            // Obtener posición global en la playlist completa
+            const globalPosition = [...this.playlist]
+                .sort((a, b) => b.votes - a.votes)
+                .findIndex(s => s.id === song.id) + 1;
+            
+            // Obtener medalla para las 3 primeras posiciones
+            let medal = '';
+            if (globalPosition === 1) medal = '🥇';
+            else if (globalPosition === 2) medal = '🥈';
+            else if (globalPosition === 3) medal = '🥉';
+            
+            return `
+            <div class="playlist-item rounded-lg p-2 flex items-center gap-2" data-song-id="${song.id}">
+                <div class="text-sm font-bold min-w-8 text-center text-gradient flex items-center justify-center">
+                    ${medal ? `<span class="text-lg">${medal}</span>` : `#${globalPosition}`}
+                </div>
+                <img src="${song.cover}" alt="${song.title}" class="w-8 h-8 rounded-md object-cover shadow-lg">
+                <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-xs truncate text-gray-800">${song.title}</div>
+                    <div class="truncate font-medium text-xs text-gray-600">${song.artist}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="btn-secondary text-white px-2 py-1 rounded-lg font-bold shadow-lg text-xs">
+                        ${song.votes}
+                    </div>
+                    <button class="btn-danger text-white px-2 py-1 rounded-lg shadow-lg font-medium text-xs" onclick="topify.removeVote('${song.id}')" title="Quitar mi voto">
+                        -1
+                    </button>
+                </div>
+            </div>
+            `;
+        }).join('');
+        
+        myVotesCount.textContent = `${this.votedSongs.length} voto${this.votedSongs.length !== 1 ? 's' : ''}`;
+    }
+
 
 }
 
