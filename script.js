@@ -42,6 +42,7 @@ class Topify {
     clearResults() {
         const resultsContainer = document.getElementById('searchResults');
         resultsContainer.innerHTML = '';
+        this.searchResults = [];
     }
 
     async searchSongs(query) {
@@ -52,7 +53,7 @@ class Topify {
 
         try {
             this.isSearching = true;
-            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`);
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=3`);
             
             if (!response.ok) {
                 throw new Error('Error en la búsqueda');
@@ -395,10 +396,11 @@ class Topify {
             `;
         }).join('');
         
-        // Agregar controles de paginación
+        // Agregar controles de paginación en un contenedor fijo
+        const paginationContainer = document.getElementById('pagination-controls');
         if (totalPages > 1) {
-            playlistContainer.innerHTML += `
-                <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-600">
+            paginationContainer.innerHTML = `
+                <div class="flex justify-between items-center">
                     <button 
                         onclick="topify.previousPage()" 
                         class="btn-secondary px-3 py-1 rounded-md text-white text-sm font-medium ${this.currentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
@@ -418,6 +420,8 @@ class Topify {
                     </button>
                 </div>
             `;
+        } else {
+            paginationContainer.innerHTML = '';
         }
         
         // Limpiar flag de nueva canción
