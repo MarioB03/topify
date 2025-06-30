@@ -10,6 +10,8 @@ class Topify {
         this.currentPlayingId = null;
         this.currentPage = 0;
         this.songsPerPage = 12;
+        this.myVotesPage = 0;
+        this.myVotesPerPage = 12;
         this.firebaseReady = false;
         this.userFingerprint = this.generateUserFingerprint();
         
@@ -830,6 +832,13 @@ class Topify {
             this.currentPage = totalPages - 1;
         }
 
+        // Ajustar página de mis votos si es necesario
+        const myVotedSongs = this.playlist.filter(s => this.votedSongs.includes(s.id));
+        const myVotesTotalPages = Math.ceil(myVotedSongs.length / this.myVotesPerPage);
+        if (this.myVotesPage >= myVotesTotalPages && myVotesTotalPages > 0) {
+            this.myVotesPage = myVotesTotalPages - 1;
+        }
+
         this.savePlaylist();
         this.renderPlaylist();
         this.updateStats();
@@ -900,6 +909,7 @@ class Topify {
     renderMyVotes() {
         const myVotesContainer = document.getElementById('myVotes');
         const myVotesCount = document.getElementById('myVotesCount');
+        const myVotesPagination = document.getElementById('myVotesPagination');
         
         if (this.votedSongs.length === 0) {
             myVotesContainer.innerHTML = `
@@ -910,6 +920,7 @@ class Topify {
                 </div>
             `;
             myVotesCount.textContent = '0 votos';
+            myVotesPagination.innerHTML = '';
             return;
         }
 
@@ -918,7 +929,13 @@ class Topify {
             this.votedSongs.includes(song.id)
         ).sort((a, b) => b.votes - a.votes);
 
-        myVotesContainer.innerHTML = myVotedSongs.map((song, index) => {
+        // Paginación para mis votos
+        const startIndex = this.myVotesPage * this.myVotesPerPage;
+        const endIndex = startIndex + this.myVotesPerPage;
+        const currentPageVotes = myVotedSongs.slice(startIndex, endIndex);
+        const totalPages = Math.ceil(myVotedSongs.length / this.myVotesPerPage);
+
+        myVotesContainer.innerHTML = currentPageVotes.map((song, index) => {
             // Obtener posición global en la playlist completa
             const globalPosition = [...this.playlist]
                 .sort((a, b) => b.votes - a.votes)
@@ -952,7 +969,52 @@ class Topify {
             `;
         }).join('');
         
+        // Agregar controles de paginación para mis votos
+        if (totalPages > 1) {
+            myVotesPagination.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <button 
+                        onclick="topify.previousMyVotesPage()" 
+                        class="btn-secondary px-3 py-1 rounded-md text-white text-sm font-medium ${this.myVotesPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${this.myVotesPage === 0 ? 'disabled' : ''}
+                    >
+                        ← Anterior
+                    </button>
+                    <div class="text-xs text-gray-600">
+                        Página ${this.myVotesPage + 1} de ${totalPages}
+                    </div>
+                    <button 
+                        onclick="topify.nextMyVotesPage()" 
+                        class="btn-secondary px-3 py-1 rounded-md text-white text-sm font-medium ${this.myVotesPage === totalPages - 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${this.myVotesPage === totalPages - 1 ? 'disabled' : ''}
+                    >
+                        Siguiente →
+                    </button>
+                </div>
+            `;
+        } else {
+            myVotesPagination.innerHTML = '';
+        }
+        
         myVotesCount.textContent = `${this.votedSongs.length} voto${this.votedSongs.length !== 1 ? 's' : ''}`;
+    }
+
+    nextMyVotesPage() {
+        const myVotedSongs = this.playlist.filter(song => 
+            this.votedSongs.includes(song.id)
+        );
+        const totalPages = Math.ceil(myVotedSongs.length / this.myVotesPerPage);
+        if (this.myVotesPage < totalPages - 1) {
+            this.myVotesPage++;
+            this.renderMyVotes();
+        }
+    }
+
+    previousMyVotesPage() {
+        if (this.myVotesPage > 0) {
+            this.myVotesPage--;
+            this.renderMyVotes();
+        }
     }
 
 
