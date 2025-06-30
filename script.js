@@ -445,13 +445,9 @@ class Topify {
     updateStats() {
         const totalSongs = this.playlist.length;
         const totalVotes = this.playlist.reduce((sum, song) => sum + song.votes, 0);
-        const totalDuration = this.playlist.reduce((sum, song) => sum + (song.duration || 0), 0);
-        const avgVotes = totalSongs > 0 ? Math.round(totalVotes / totalSongs) : 0;
 
         document.getElementById('totalSongs').textContent = totalSongs;
         document.getElementById('totalVotes').textContent = totalVotes;
-        document.getElementById('avgVotes').textContent = avgVotes;
-        document.getElementById('totalDuration').textContent = this.formatDuration(totalDuration);
     }
 
     savePlaylist() {
