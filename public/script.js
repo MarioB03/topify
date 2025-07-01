@@ -9,10 +9,10 @@ class Topify {
         this.currentAudio = null;
         this.currentPlayingId = null;
         this.currentPage = 0;
-        // Responsive songs per page
-        this.songsPerPage = window.innerWidth < 1024 ? 8 : 12;
+        // Maximum 10 songs per page
+        this.songsPerPage = 10;
         this.myVotesPage = 0;
-        this.myVotesPerPage = window.innerWidth < 1024 ? 8 : 12;
+        this.myVotesPerPage = 10;
         this.firebaseReady = false;
         this.userFingerprint = this.generateUserFingerprint();
         
@@ -23,18 +23,6 @@ class Topify {
             this.startCountdown();
         });
         
-        // Handle window resize for responsive songs per page
-        window.addEventListener('resize', () => {
-            const newSongsPerPage = window.innerWidth < 1024 ? 8 : 12;
-            if (newSongsPerPage !== this.songsPerPage) {
-                this.songsPerPage = newSongsPerPage;
-                this.myVotesPerPage = newSongsPerPage;
-                this.currentPage = 0;
-                this.myVotesPage = 0;
-                this.renderPlaylist();
-                this.renderMyVotes();
-            }
-        });
     }
 
     async waitForFirebase() {
