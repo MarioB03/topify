@@ -9,10 +9,10 @@ class Topify {
         this.currentAudio = null;
         this.currentPlayingId = null;
         this.currentPage = 0;
-        // Maximum 10 songs per page
-        this.songsPerPage = 10;
+        // Maximum 9 songs per page
+        this.songsPerPage = 9;
         this.myVotesPage = 0;
-        this.myVotesPerPage = 10;
+        this.myVotesPerPage = 9;
         this.firebaseReady = false;
         this.userFingerprint = this.generateUserFingerprint();
         
