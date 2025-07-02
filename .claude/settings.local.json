@@ -12,7 +12,26 @@
       "Bash(npm run dev:*)",
       "Bash(git init:*)",
       "Bash(gh auth:*)",
-      "Bash(brew install:*)"
+      "Bash(brew install:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(mkdir:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(grep:*)",
+      "Bash(true)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)",
+      "Bash(timeout 10s npm run dev)",
+      "Bash(npx vercel:*)",
+      "Bash(npx firebase-tools:*)",
+      "Bash(npx firebase:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(firebase deploy:*)",
+      "WebFetch(domain:topify-5e609.web.app)",
+      "Bash(node:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

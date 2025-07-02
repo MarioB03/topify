@@ -6,13 +6,15 @@ class Topify {
         this.searchResults = [];
         this.debounceTimer = null;
         this.isSearching = false;
+        this.isLoadingPlaylist = true;
+        this.isLoadingVotes = true;
         this.currentAudio = null;
         this.currentPlayingId = null;
         this.currentPage = 0;
-        // Maximum 9 songs per page
-        this.songsPerPage = 9;
+        // Maximum 10 songs per page
+        this.songsPerPage = 10;
         this.myVotesPage = 0;
-        this.myVotesPerPage = 9;
+        this.myVotesPerPage = 10;
         this.firebaseReady = false;
         this.userFingerprint = this.generateUserFingerprint();
         
@@ -31,6 +33,26 @@ class Topify {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
         this.firebaseReady = true;
+    }
+
+    generateSkeletons(count = 5, showPosition = false) {
+        return Array(count).fill().map((_, index) => `
+            <div class="playlist-item rounded-lg p-2 flex items-center gap-2 animate-pulse">
+                ${showPosition ? `
+                    <div class="w-8 h-6 bg-gray-300 rounded"></div>
+                ` : ''}
+                <div class="w-10 h-10 bg-gray-300 rounded-md"></div>
+                <div class="flex-1 min-w-0">
+                    <div class="h-4 bg-gray-300 rounded mb-1" style="width: ${60 + Math.random() * 40}%"></div>
+                    <div class="h-3 bg-gray-200 rounded" style="width: ${40 + Math.random() * 30}%"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-6 bg-gray-300 rounded"></div>
+                    <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                    <div class="w-12 h-8 bg-gray-300 rounded"></div>
+                </div>
+            </div>
+        `).join('');
     }
 
     generateUserFingerprint() {
@@ -104,6 +126,9 @@ class Topify {
 
     async loadPlaylistFromFirebase() {
         try {
+            this.isLoadingPlaylist = true;
+            this.renderPlaylist();
+            
             const { collection, getDocs, query, orderBy } = window.firestoreUtils;
             const playlistQuery = query(collection(window.firestore, 'playlist'), orderBy('votes', 'desc'));
             const querySnapshot = await getDocs(playlistQuery);
@@ -115,6 +140,7 @@ class Topify {
             
             console.log('Playlist loaded:', this.playlist.length, 'songs');
             
+            this.isLoadingPlaylist = false;
             this.renderPlaylist();
             this.updateStats();
             this.renderMyVotes();
@@ -122,6 +148,7 @@ class Topify {
             console.error('Error loading playlist from Firebase:', error);
             // Fallback to localStorage
             this.playlist = JSON.parse(localStorage.getItem('topify-playlist')) || [];
+            this.isLoadingPlaylist = false;
             this.renderPlaylist();
             this.updateStats();
             this.renderMyVotes();
@@ -130,6 +157,9 @@ class Topify {
 
     async loadVotedSongsFromFirebase() {
         try {
+            this.isLoadingVotes = true;
+            this.renderMyVotes();
+            
             const { collection, getDocs, query, where } = window.firestoreUtils;
             // Solo cargar votos de este usuario específico
             console.log('Loading voted songs for user:', this.userFingerprint);
@@ -147,10 +177,12 @@ class Topify {
             });
             
             console.log('Total voted songs loaded:', this.votedSongs.length, this.votedSongs);
+            this.isLoadingVotes = false;
         } catch (error) {
             console.error('Error loading voted songs from Firebase:', error);
             // Fallback to localStorage
             this.votedSongs = JSON.parse(localStorage.getItem('topify-voted-songs')) || [];
+            this.isLoadingVotes = false;
         }
     }
 
@@ -198,6 +230,7 @@ class Topify {
                 artist: song.artist,
                 cover: song.cover,
                 duration: song.duration,
+                preview: song.preview || null,
                 votes: song.votes,
                 createdAt: new Date()
             });
@@ -485,6 +518,7 @@ class Topify {
                 artist: song.artist.name,
                 cover: song.album.cover_medium,
                 duration: song.duration,
+                preview: song.preview || null,
                 votes: 1,
                 isNew: true
             };
@@ -629,6 +663,7 @@ class Topify {
 
         // Reproducir nueva canción
         this.currentAudio = new Audio(previewUrl);
+        this.currentAudio.volume = 0.5; // Set volume to 50%
         this.currentPlayingId = songId;
         
         this.currentAudio.play().then(() => {
@@ -662,6 +697,11 @@ class Topify {
 
     renderPlaylist() {
         const playlistContainer = document.getElementById('playlist');
+        
+        if (this.isLoadingPlaylist) {
+            playlistContainer.innerHTML = this.generateSkeletons(this.songsPerPage, true);
+            return;
+        }
         
         if (this.playlist.length === 0) {
             playlistContainer.innerHTML = `
@@ -705,6 +745,11 @@ class Topify {
                     <div class="btn-secondary text-white px-3 py-1 rounded-lg font-bold shadow-lg">
                         ${song.votes}
                     </div>
+                    ${song.preview ? `
+                        <button class="btn-audio text-white px-2 py-1 rounded-lg shadow-lg" onclick="topify.togglePreview('${song.id}', '${song.preview}')" title="Escuchar preview">
+                            <span id="play-icon-${song.id}" class="text-sm">🎵</span>
+                        </button>
+                    ` : ''}
                     ${canVote ? `
                         <button class="btn-success text-white px-3 py-1 rounded-lg shadow-lg font-bold w-12" onclick="topify.addVoteToSong('${song.id}')" title="Votar por esta canción">
                             <span class="text-sm">+1</span>
@@ -913,6 +958,13 @@ class Topify {
         const myVotesCount = document.getElementById('myVotesCount');
         const myVotesPagination = document.getElementById('myVotesPagination');
         
+        if (this.isLoadingVotes) {
+            myVotesContainer.innerHTML = this.generateSkeletons(this.myVotesPerPage, true);
+            myVotesCount.textContent = '- votos';
+            myVotesPagination.innerHTML = '';
+            return;
+        }
+        
         if (this.votedSongs.length === 0) {
             myVotesContainer.innerHTML = `
                 <div class="text-center py-16">
@@ -963,6 +1015,11 @@ class Topify {
                     <div class="btn-secondary text-white px-3 py-1 rounded-lg font-bold shadow-lg">
                         ${song.votes}
                     </div>
+                    ${song.preview ? `
+                        <button class="btn-audio text-white px-2 py-1 rounded-lg shadow-lg" onclick="topify.togglePreview('${song.id}', '${song.preview}')" title="Escuchar preview">
+                            <span id="play-icon-${song.id}" class="text-sm">🎵</span>
+                        </button>
+                    ` : ''}
                     <button class="btn-danger text-white px-3 py-1 rounded-lg shadow-lg font-medium w-12" onclick="topify.removeVote('${song.id}')" title="Quitar mi voto">
                         <span class="text-sm">-1</span>
                     </button>

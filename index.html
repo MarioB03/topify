@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topify - Vota tu música</title>
+    <title>Topify</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -264,6 +264,20 @@
                 </div>
             </section>
         </div>
+
+        <!-- Mis Votos -->
+        <section class="glass-card rounded-3xl p-6 mt-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="section-title text-2xl font-bold text-white">
+                    ❤️ Mis votos
+                </h2>
+                <div class="bg-gray-600 text-white px-3 py-1 rounded-full text-sm font-bold" id="myVotesCount">
+                    0 votos
+                </div>
+            </div>
+            <div id="myVotes" class="space-y-2" style="min-height: 200px;"></div>
+            <div id="myVotesPagination" class="mt-4"></div>
+        </section>
 
         <!-- Estadísticas al final -->
         <section class="glass-card rounded-3xl p-6 mt-8">
