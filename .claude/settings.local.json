@@ -31,7 +31,9 @@
       "Bash(firebase deploy:*)",
       "WebFetch(domain:topify-5e609.web.app)",
       "Bash(node:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
