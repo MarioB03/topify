@@ -33,7 +33,10 @@
       "Bash(node:*)",
       "Bash(git add:*)",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(mv:*)",
+      "Bash(find:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }

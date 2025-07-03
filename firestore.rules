@@ -1,14 +1,74 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read and write access to playlist
-    match /playlist/{document} {
-      allow read, write: if true;
+    // Función para validar la estructura de una canción
+    function isValidSong() {
+      return request.resource.data.keys().hasAll(['title', 'artist', 'votes', 'id']) &&
+        request.resource.data.title is string &&
+        request.resource.data.artist is map &&
+        request.resource.data.artist.name is string &&
+        request.resource.data.votes is int &&
+        request.resource.data.votes >= 0 &&
+        request.resource.data.id is string;
     }
     
-    // Allow read and write access to voted songs
-    match /votedSongs/{document} {
-      allow read, write: if true;
+    // Función para validar actualizaciones de votos
+    function isValidVoteUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes', 'lastVotedAt']) &&
+        request.resource.data.votes == resource.data.votes + 1;
+    }
+    
+    // Reglas para la colección de playlist
+    match /playlist/{songId} {
+      // Cualquiera puede leer la playlist
+      allow read: if true;
+      
+      // Permitir crear canciones con validación estricta
+      allow create: if isValidSong() && 
+        // El ID del documento debe coincidir con el ID en los datos
+        songId == request.resource.data.id &&
+        // Los votos iniciales deben ser 0
+        request.resource.data.votes == 0;
+      
+      // Solo permitir incrementar votos
+      allow update: if isValidVoteUpdate();
+      
+      // Permitir eliminar solo si la canción tiene 0 votos
+      // Esto permite limpiar canciones no populares
+      allow delete: if resource.data.votes == 0;
+    }
+    
+    // Reglas para tracking de votos por dispositivo (sin auth)
+    match /deviceVotes/{deviceId} {
+      // Nadie puede leer los votos de otros dispositivos
+      allow read: if false;
+      
+      // Permitir crear documento de tracking
+      allow create: if deviceId == request.resource.data.deviceId &&
+        request.resource.data.votes is list &&
+        request.resource.data.lastVoteTime is timestamp;
+      
+      // Permitir actualizar para añadir votos
+      allow update: if deviceId == resource.data.deviceId &&
+        request.resource.data.deviceId == resource.data.deviceId;
+      
+      // No permitir eliminar
+      allow delete: if false;
+    }
+    
+    // Reglas para estadísticas globales
+    match /stats/{statId} {
+      // Cualquiera puede leer estadísticas
+      allow read: if true;
+      
+      // Solo el sistema puede escribir estadísticas
+      allow write: if false;
+    }
+    
+    // Denegar todo lo demás por defecto
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

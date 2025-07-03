@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "playlist",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "votes",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "addedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "votes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

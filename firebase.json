@@ -1,6 +1,10 @@
 {
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
   "hosting": {
-    "public": "topify-nextjs/out",
+    "public": "out",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -8,20 +12,9 @@
     ],
     "rewrites": [
       {
-        "source": "/api/**",
-        "function": "app"
-      },
-      {
         "source": "**",
         "destination": "/index.html"
       }
     ]
-  },
-  "firestore": {
-    "rules": "firestore.rules"
-  },
-  "functions": {
-    "source": "functions",
-    "node": "18"
   }
 }
